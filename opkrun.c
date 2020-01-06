@@ -168,8 +168,7 @@ static int read_params(struct OPK *opk, struct params *params)
 
 	params->exec[arg] = NULL;
 
-	params->mountpoint = malloc(name_len + 6);
-	sprintf(params->mountpoint, "/mnt/%.*s", (int) name_len, name);
+	params->mountpoint = "/mnt";
 
 	for (ptr = params->mountpoint + 5; *ptr; ptr++) {
 		if (*ptr == '\'' || *ptr == '\\')
@@ -326,7 +325,6 @@ int main(int argc, char **argv)
 	free(params.exec[0]);
 
 	umount(params.mountpoint);
-	mkdir(params.mountpoint, 0755);
 
 	char buf[256];
 	sprintf(buf, "mount -o loop,nodev,nosuid,ro \'%s\' \'%s\' >/dev/null 2>&1",
@@ -367,7 +365,6 @@ int main(int argc, char **argv)
 
 	chdir("/");
 	umount(params.mountpoint);
-	rmdir(params.mountpoint);
 	free(params.mountpoint);
 
 	for (char **ptr = args; *ptr; ptr++)
