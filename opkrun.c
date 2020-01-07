@@ -97,6 +97,7 @@ static int read_params(struct OPK *opk, struct params *params)
 	memset(params, 0, sizeof(*params));
 	const char *exec_name = NULL, *name = NULL;
 	size_t exec_name_len = 0, name_len = 0;
+	bool x_od_selector = false;
 
 	for (;;) {
 		const char *key, *val;
@@ -141,6 +142,11 @@ static int read_params(struct OPK *opk, struct params *params)
 			params->needs_downscaling = !strncmp(val, "true", sval);
 			continue;
 		}
+
+		if (!strncmp(key, "X-OD-Selector", skey)) {
+			x_od_selector = true;
+			continue;
+		}
 	}
 
 	if (!exec_name || !name) {
@@ -148,9 +154,12 @@ static int read_params(struct OPK *opk, struct params *params)
 		return -1;
 	}
 
-	char *exec = malloc(exec_name_len + 1);
+	char *exec = malloc(exec_name_len + 4);
 	memcpy(exec, exec_name, exec_name_len);
 	exec[exec_name_len] = '\0';
+
+	if (x_od_selector)
+		strcat(exec, " %f");
 
 	/* Split the Exec command into an array of parameters */
 	char *ptr;
